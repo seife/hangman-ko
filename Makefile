@@ -1,0 +1,3 @@
+obj-m = hangman.o
+
+
