@@ -1,7 +1,8 @@
 #include <linux/module.h>
 #include <linux/delay.h>
 #include <linux/kernel.h>
-#include <linux/sched.h> /* tasklist_lock */
+
+#include <linux/kallsyms.h>
 
 /* for delayed triggers */
 static struct timer_list timer;
@@ -26,13 +27,16 @@ static void timer_func(unsigned long d);
 static spinlock_t lck;
 static unsigned long flags;
 
-/* those pointer values need to be taken from System.map for now */
-rwlock_t *my_tasklist_lock = (rwlock_t *)0xffffffff81a05040;
-spinlock_t *my_proc_subdir_lock = (spinlock_t *)0xffffffff81cf7de0;
+static rwlock_t *my_tasklist_lock;
+static spinlock_t *my_proc_subdir_lock;
 
 static int __init hangman_init(void)
 {
 	printk(KERN_INFO "%s...\n", __func__);
+	my_tasklist_lock = (rwlock_t *)kallsyms_lookup_name("tasklist_lock");
+	my_proc_subdir_lock = (spinlock_t *)kallsyms_lookup_name("proc_subdir_lock");
+	printk(KERN_INFO "%s: tasklist_lock:     0x%p\n", __func__, my_tasklist_lock);
+	printk(KERN_INFO "%s: proc_subdir_lock:  0x%p\n", __func__, my_proc_subdir_lock);
 	if (irqsave2) {
 		printk(KERN_INFO "taking spin_lock_irqsave twice...\n");
 		spin_lock_init(&lck);
