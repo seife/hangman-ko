@@ -7,18 +7,22 @@
 /* for delayed triggers */
 static struct timer_list timer;
 
+/* instant hard hang -> module_init does not return */
 static int irqsave2;
 module_param(irqsave2, int, 0);
 MODULE_PARM_DESC(irqsave2, "hang via 2 x spin_lock_irqsave in init function");
 
+/* hard hang after two seconds */
 static int irqsave;
 module_param(irqsave, int, 0);
 MODULE_PARM_DESC(irqsave, "hang via unbalanced spin_lock_irqsave in timer");
 
+/* hard hang *soon* */
 static int tasklist;
 module_param(tasklist, int, 0);
 MODULE_PARM_DESC(tasklist, "hang via unbalanced tasklist_lock");
 
+/* needed by many /proc operations -> hangs soon, but soft -> ping still works */
 static int proc_subdir;
 module_param(proc_subdir, int, 0);
 MODULE_PARM_DESC(proc_subdir, "hang via unbalanced proc_subdir_lock");
@@ -75,7 +79,7 @@ module_exit(hangman_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Stefan Seyfried");
-MODULE_DESCRIPTION("This module hangs your kenrel in various ways");
+MODULE_DESCRIPTION("This module hangs your kernel in various ways");
 
 static void timer_func(unsigned long d)
 {
