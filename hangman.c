@@ -22,6 +22,11 @@ static int tasklist;
 module_param(tasklist, int, 0);
 MODULE_PARM_DESC(tasklist, "hang via unbalanced tasklist_lock");
 
+/* basically only used in driver core -> not that effective... */
+static int klist;
+module_param(klist, int, 0);
+MODULE_PARM_DESC(klist, "hang via unbalanced klist_lock");
+
 /* needed by many /proc operations -> hangs soon, but soft -> ping still works */
 static int proc_subdir;
 module_param(proc_subdir, int, 0);
@@ -33,14 +38,17 @@ static unsigned long flags;
 
 static rwlock_t *my_tasklist_lock;
 static spinlock_t *my_proc_subdir_lock;
+static spinlock_t *my_klist_remove_lock;
 
 static int __init hangman_init(void)
 {
 	printk(KERN_INFO "%s...\n", __func__);
 	my_tasklist_lock = (rwlock_t *)kallsyms_lookup_name("tasklist_lock");
 	my_proc_subdir_lock = (spinlock_t *)kallsyms_lookup_name("proc_subdir_lock");
+	my_klist_remove_lock = (spinlock_t *)kallsyms_lookup_name("klist_remove_lock");
 	printk(KERN_INFO "%s: tasklist_lock:     0x%p\n", __func__, my_tasklist_lock);
 	printk(KERN_INFO "%s: proc_subdir_lock:  0x%p\n", __func__, my_proc_subdir_lock);
+	printk(KERN_INFO "%s: klist_remove_lock: 0x%p\n", __func__, my_klist_remove_lock);
 	if (irqsave2) {
 		printk(KERN_INFO "taking spin_lock_irqsave twice...\n");
 		spin_lock_init(&lck);
@@ -58,6 +66,10 @@ static int __init hangman_init(void)
 	if (tasklist) {
 		printk(KERN_INFO "taking tasklist_lock \n");
 		read_lock(my_tasklist_lock);
+	}
+	if (klist) {
+		printk(KERN_INFO "taking klist_remove_lock \n");
+		spin_lock(my_klist_remove_lock);
 	}
 	if (proc_subdir) {
 		printk(KERN_INFO "taking my_proc_subdir_lock\n");
