@@ -1,0 +1,13 @@
+This is a simple kernel module, designed to hang up the
+kernel in various ways.
+
+Why anyone would want to do that?
+It is e.g. handy for testing systems monitoring software.
+See the comments in the source on the various hang up methods
+used.
+
+To build it, simply execute ./build.sh.
+
+Have a lot of fun...
+
+   Stefan

@@ -1,0 +1,12 @@
+.built-in.o.cmd
+.hangman.ko.cmd
+.hangman.mod.o.cmd
+.hangman.o.cmd
+.tmp_versions/
+Module.symvers
+built-in.o
+hangman.ko
+hangman.mod.c
+hangman.mod.o
+hangman.o
+modules.order
